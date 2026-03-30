@@ -11,7 +11,7 @@ export class TasksService {
     constructor(@InjectRepository(Task) private readonly tasksRepository: Repository<Task>) {
     }
     async createTask(title: string, description: string, dueDate: Date, user: User): Promise<Task> {
-        const task = this.tasksRepository.create({ title, description, dueDate, status: TaskStatus.OPEN, user });
+        const task = this.tasksRepository.create({ title, description, dueDate, status: TaskStatus.OPEN });
         return this.tasksRepository.save(task);
     }
     async getTask(id: string, user: User): Promise<Task | null> {
