@@ -8,10 +8,10 @@ export class UsersService {
     private saltRounds = 10;
     constructor(@InjectRepository(User) private readonly usersRepository: Repository<User>) { }
 
-    async getUser(username: string): Promise<User> {
-        const user = await this.usersRepository.findOneBy({ username });
+    async getUser(id: string): Promise<User> {
+        const user = await this.usersRepository.findOneBy({ id });
         if (!user)
-            throw new NotFoundException(`user with username ${username} not found`);
+            throw new NotFoundException(`user with id ${id} not found`);
         return user;
     }
 

@@ -12,7 +12,7 @@ export class TasksController {
     @Post()
     createTask(@Body() createTaskDto: CreateTaskDto, @GetUser() payload: JwtPayload) {
         const { title, description, dueDate } = createTaskDto;
-        return this.tasksService.createTask(title, description, dueDate, payload.user);
+        return this.tasksService.createTask(title, description, dueDate, payload.sub);
     }
 
 }

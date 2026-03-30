@@ -6,12 +6,15 @@ import { User } from 'src/users/user.entity';
 import { TaskStatus } from './task-status.enum';
 import { UpdateResult } from 'typeorm/browser';
 import { DeleteResult } from 'typeorm/browser';
+import { UsersService } from 'src/users/users.service';
 @Injectable()
 export class TasksService {
-    constructor(@InjectRepository(Task) private readonly tasksRepository: Repository<Task>) {
-    }
-    async createTask(title: string, description: string, dueDate: Date, user: User): Promise<Task> {
-        const task = this.tasksRepository.create({ title, description, dueDate, status: TaskStatus.OPEN });
+    constructor(@InjectRepository(Task) private readonly tasksRepository: Repository<Task>, private readonly usersService: UsersService) { }
+    async createTask(title: string, description: string, dueDate: Date, userId: string): Promise<Task> {
+        const user = await this.usersService.getUser(userId);
+        if (!user)
+            throw new NotFoundException(`user with id ${userId} not found`);
+        const task = { title, description, dueDate, status: TaskStatus.OPEN, user };
         return this.tasksRepository.save(task);
     }
     async getTask(id: string, user: User): Promise<Task | null> {
