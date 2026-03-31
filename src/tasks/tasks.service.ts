@@ -17,14 +17,21 @@ export class TasksService {
         const task = { title, description, dueDate, status: TaskStatus.OPEN, user };
         return this.tasksRepository.save(task);
     }
-    async getTask(id: string, user: User): Promise<Task | null> {
-        return this.tasksRepository.findOneBy({ id, user });
+    async getTask(id: string, userId: string): Promise<Task> {
+        const user = await this.usersService.getUser(userId);
+        if (!user)
+            throw new NotFoundException(`user with id ${userId} not found`);
+
+        const task = await this.tasksRepository.findOneBy({ id, user });
+        if (!task)
+            throw new NotFoundException(`Task with id: ${id} not found`);
+        return task;
     }
     async getTasks(user: User, filter: Partial<Task>): Promise<Task[]> {
         return this.tasksRepository.find({ where: { user, ...filter } });
     }
     async udapteTask(id: string, updateTask: Partial<Task>, user: User): Promise<UpdateResult> {
-        let taskToUpdate = this.tasksRepository.findBy({ id, user });
+        let taskToUpdate = this.tasksRepository.findOneBy({ id, user });
         if (!taskToUpdate)
             throw new NotFoundException(`task with id ${id} not found`);
         return this.tasksRepository.update({ id, user }, updateTask);
