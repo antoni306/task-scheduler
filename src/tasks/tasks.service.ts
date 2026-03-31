@@ -1,8 +1,7 @@
 import { Injectable, NotFoundException, Search } from '@nestjs/common';
-import { Not, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Task } from './task.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/users/user.entity';
 import { TaskStatus } from './task-status.enum';
 import { UpdateResult } from 'typeorm/browser';
 import { DeleteResult } from 'typeorm/browser';
