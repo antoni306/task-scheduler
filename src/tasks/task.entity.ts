@@ -13,7 +13,7 @@ export class Task {
     @Column()
     dueDate: Date;
     @Column()
-    status: TaskStatus;
+    taskStatus: TaskStatus;
     @ManyToOne(_type => User, user => user.tasks)
     user: User;
 }

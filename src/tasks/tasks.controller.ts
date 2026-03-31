@@ -5,6 +5,7 @@ import { TasksService } from './tasks.service';
 import { GetUser } from 'src/auth/get-user.decorator';
 import type { JwtPayload } from 'src/auth/jwt-payload.interface';
 import { Task } from './task.entity';
+import { FilterTaskDto } from './dto/filter-task.dto';
 @UseGuards(AuthGuard)
 @Controller('tasks')
 export class TasksController {
@@ -20,6 +21,11 @@ export class TasksController {
     @Get(':id')
     getTask(@Param('id') id: string, @GetUser() payload: JwtPayload) {
         return this.tasksService.getTask(id, payload.sub);
+    }
+
+    @Get()
+    getTasks(@Body() filters: FilterTaskDto, @GetUser() payload: JwtPayload) {
+        return this.tasksService.getTasks(payload.sub, filters)
     }
 
 }
