@@ -8,6 +8,7 @@ import { UpdateResult } from 'typeorm/browser';
 import { DeleteResult } from 'typeorm/browser';
 import { UsersService } from 'src/users/users.service';
 import { FilterTaskDto } from './dto/filter-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
 @Injectable()
 export class TasksService {
     constructor(@InjectRepository(Task) private readonly tasksRepository: Repository<Task>, private readonly usersService: UsersService) { }
@@ -42,11 +43,8 @@ export class TasksService {
         }
         return query.getMany();
     }
-    async udapteTask(id: string, updateTask: Partial<Task>, user: User): Promise<UpdateResult> {
-        let taskToUpdate = this.tasksRepository.findOneBy({ id, user });
-        if (!taskToUpdate)
-            throw new NotFoundException(`task with id ${id} not found`);
-        return this.tasksRepository.update({ id, user }, updateTask);
+    async updateTask(id: string, updateTask: UpdateTaskDto, userId: string): Promise<UpdateResult> {
+        return this.tasksRepository.update({ id, user: { id: userId } }, { ...updateTask });
     }
     async deleteTask(id: string, user: User): Promise<DeleteResult> {
         return this.tasksRepository.delete({ id, user });

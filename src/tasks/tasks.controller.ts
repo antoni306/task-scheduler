@@ -1,4 +1,4 @@
-import { Controller, UseGuards, Post, Body, Param, Get } from '@nestjs/common';
+import { Controller, UseGuards, Post, Body, Param, Get, Patch } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TasksService } from './tasks.service';
@@ -6,6 +6,7 @@ import { GetUser } from 'src/auth/get-user.decorator';
 import type { JwtPayload } from 'src/auth/jwt-payload.interface';
 import { Task } from './task.entity';
 import { FilterTaskDto } from './dto/filter-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
 @UseGuards(AuthGuard)
 @Controller('tasks')
 export class TasksController {
@@ -26,6 +27,11 @@ export class TasksController {
     @Get()
     getTasks(@Body() filters: FilterTaskDto, @GetUser() payload: JwtPayload) {
         return this.tasksService.getTasks(payload.sub, filters)
+    }
+
+    @Patch(':id')
+    updateTask(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto, @GetUser() payload: JwtPayload) {
+        return this.tasksService.updateTask(id, updateTaskDto, payload.sub);
     }
 
 }
