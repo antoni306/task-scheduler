@@ -44,7 +44,11 @@ export class TasksService {
         return query.getMany();
     }
     async updateTask(id: string, updateTask: UpdateTaskDto, userId: string): Promise<UpdateResult> {
-        return this.tasksRepository.update({ id, user: { id: userId } }, { ...updateTask });
+        const updateResult = await this.tasksRepository.update({ id, user: { id: userId } }, { ...updateTask });
+        if (!updateResult.affected) {
+            throw new NotFoundException(`task with id ${id} not found`);
+        }
+        return updateResult;
     }
     async deleteTask(id: string, userId: string): Promise<DeleteResult> {
         const deleteResult = await this.tasksRepository.delete({ id, user: { id: userId } });
