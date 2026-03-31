@@ -14,7 +14,13 @@ export class UsersService {
             throw new NotFoundException(`user with id ${id} not found`);
         return user;
     }
+    async getUserByUsername(username: string): Promise<User> {
+        const user = await this.usersRepository.findOneBy({ username });
 
+        if (!user)
+            throw new NotFoundException(`user with username ${username} not found`)
+        return user
+    }
     async checkPassword(password, hashed): Promise<boolean> {
         return bcrypt.compare(password, hashed);
     }

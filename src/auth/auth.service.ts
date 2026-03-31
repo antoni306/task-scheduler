@@ -9,7 +9,7 @@ export class AuthService {
     constructor(private usersService: UsersService, private jwtService: JwtService) { }
 
     async signIn(username: string, password: string): Promise<{ access_token: string }> {
-        const user = await this.usersService.getUser(username);
+        const user = await this.usersService.getUserByUsername(username);
 
         if (!await this.usersService.checkPassword(password, user.password)) {
             throw new UnauthorizedException();
