@@ -1,15 +1,12 @@
 import { Controller, UseGuards, Post, Body, Param, Get, Patch, Delete, Req } from '@nestjs/common';
-import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TasksService } from './tasks.service';
-import type { JwtPayload } from 'src/auth/jwt-payload.interface';
 import { Task } from './task.entity';
 import { FilterTaskDto } from './dto/filter-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { User } from 'src/users/user.entity';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Request } from '@nestjs/common';
-// @UseGuards(AuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('tasks')
 export class TasksController {
     constructor(private tasksService: TasksService) { }
@@ -21,11 +18,10 @@ export class TasksController {
     }
 
 
-    // @Get(':id')
-    // getTask(@Param('id') id: string, @GetUser() user: User) {
-    //     console.log(user.id);
-    //     return this.tasksService.getTask(id, user.id);
-    // }
+    @Get(':id')
+    getTask(@Param('id') id: string, @Request() req) {
+        return this.tasksService.getTask(id, req.user.sub);
+    }
 
     @Get()
     getTasks(@Body() filters: FilterTaskDto, @Request() req) {
@@ -43,10 +39,6 @@ export class TasksController {
     }
 
 
-    @UseGuards(JwtAuthGuard)
-    @Get('profile')
-    getProfile(@Request() req) {
-        return req.user;
-    }
+
 
 }
