@@ -1,42 +1,52 @@
-import { Controller, UseGuards, Post, Body, Param, Get, Patch, Delete } from '@nestjs/common';
+import { Controller, UseGuards, Post, Body, Param, Get, Patch, Delete, Req } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TasksService } from './tasks.service';
-import { GetUser } from 'src/auth/get-user.decorator';
 import type { JwtPayload } from 'src/auth/jwt-payload.interface';
 import { Task } from './task.entity';
 import { FilterTaskDto } from './dto/filter-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-@UseGuards(AuthGuard)
+import { User } from 'src/users/user.entity';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Request } from '@nestjs/common';
+// @UseGuards(AuthGuard)
 @Controller('tasks')
 export class TasksController {
     constructor(private tasksService: TasksService) { }
 
     @Post()
-    createTask(@Body() createTaskDto: CreateTaskDto, @GetUser() payload: JwtPayload): Promise<Task> {
+    createTask(@Body() createTaskDto: CreateTaskDto, @Request() req): Promise<Task> {
         const { title, description, dueDate } = createTaskDto;
-        return this.tasksService.createTask(title, description, dueDate, payload.sub);
+        return this.tasksService.createTask(title, description, dueDate, req.user.sub);
     }
 
 
-    @Get(':id')
-    getTask(@Param('id') id: string, @GetUser() payload: JwtPayload) {
-        return this.tasksService.getTask(id, payload.sub);
-    }
+    // @Get(':id')
+    // getTask(@Param('id') id: string, @GetUser() user: User) {
+    //     console.log(user.id);
+    //     return this.tasksService.getTask(id, user.id);
+    // }
 
     @Get()
-    getTasks(@Body() filters: FilterTaskDto, @GetUser() payload: JwtPayload) {
-        return this.tasksService.getTasks(payload.sub, filters)
+    getTasks(@Body() filters: FilterTaskDto, @Request() req) {
+        return this.tasksService.getTasks(req.user.sub, filters)
     }
 
     @Patch(':id')
-    updateTask(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto, @GetUser() payload: JwtPayload) {
-        return this.tasksService.updateTask(id, updateTaskDto, payload.sub);
+    updateTask(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto, @Request() req) {
+        return this.tasksService.updateTask(id, updateTaskDto, req.user.sub);
     }
 
     @Delete(':id')
-    deleteTask(@Param('id') id: string, @GetUser() payload: JwtPayload) {
-        return this.tasksService.deleteTask(id, payload.sub);
+    deleteTask(@Param('id') id: string, @Request() req) {
+        return this.tasksService.deleteTask(id, req.user.sub);
+    }
+
+
+    @UseGuards(JwtAuthGuard)
+    @Get('profile')
+    getProfile(@Request() req) {
+        return req.user;
     }
 
 }
