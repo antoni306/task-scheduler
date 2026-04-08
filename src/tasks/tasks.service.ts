@@ -7,22 +7,28 @@ import { UpdateResult } from 'typeorm/browser';
 import { DeleteResult } from 'typeorm/browser';
 import { FilterTaskDto } from './dto/filter-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { User } from 'src/users/user.entity';
 @Injectable()
 export class TasksService {
     constructor(@InjectRepository(Task) private readonly tasksRepository: Repository<Task>) { }
-    async createTask(title: string, description: string, dueDate: Date, userId: string): Promise<Task> {
-        const task = { title, description, dueDate, taskStatus: TaskStatus.OPEN, user: { id: userId } };
-        return this.tasksRepository.save(task);
+    async createTask(title: string, description: string, dueDate: Date, user: User): Promise<Task> {
+        try {
+            const task = this.tasksRepository.create({ title, description, dueDate, taskStatus: TaskStatus.OPEN, user: user });
+            return this.tasksRepository.save(task);
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
     }
-    async getTask(id: string, userId: string): Promise<Task> {
-        const task = await this.tasksRepository.findOneBy({ id, user: { id: userId } });
+    async getTask(id: string, user: User): Promise<Task> {
+        const task = await this.tasksRepository.findOneBy({ id, user });
         if (!task)
             throw new NotFoundException(`Task with id: ${id} not found`);
         return task;
     }
-    async getTasks(userId: string, filter: FilterTaskDto): Promise<Task[]> {
+    async getTasks(user: User, filter: FilterTaskDto): Promise<Task[]> {
         const query = this.tasksRepository.createQueryBuilder('task');
-        query.andWhere({ user: { id: userId } });
+        query.andWhere({ user });
 
         if (filter.title) {
             query.andWhere('(LOWER(task.title) ILIKE :search) ', { search: `%${filter.title}%` });
@@ -38,17 +44,17 @@ export class TasksService {
         }
         return query.getMany();
     }
-    async updateTask(id: string, updateTask: UpdateTaskDto, userId: string): Promise<UpdateResult> {
-        const updateResult = await this.tasksRepository.update({ id, user: { id: userId } }, { ...updateTask });
+    async updateTask(id: string, updateTask: UpdateTaskDto, user: User): Promise<UpdateResult> {
+        const updateResult = await this.tasksRepository.update({ id, user }, { ...updateTask });
         if (!updateResult.affected) {
             throw new NotFoundException(`task with id ${id} not found`);
         }
         return updateResult;
     }
-    async deleteTask(id: string, userId: string): Promise<DeleteResult> {
-        const deleteResult = await this.tasksRepository.delete({ id, user: { id: userId } });
+    async deleteTask(id: string, user: User): Promise<DeleteResult> {
+        const deleteResult = await this.tasksRepository.delete({ id, user });
         if (!deleteResult.affected) {
-            throw new NotFoundException(`no task with id ${id} found`);
+            throw new NotFoundException(`task with id ${id} not found`);
         }
         return deleteResult;
     }

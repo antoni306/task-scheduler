@@ -21,7 +21,7 @@ export class UsersService {
             throw new NotFoundException(`user with username ${username} not found`)
         return user
     }
-    async checkPassword(password, hashed): Promise<boolean> {
+    async checkPassword(password: string, hashed: string): Promise<boolean> {
         return bcrypt.compare(password, hashed);
     }
 

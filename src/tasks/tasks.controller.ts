@@ -6,6 +6,7 @@ import { FilterTaskDto } from './dto/filter-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Request } from '@nestjs/common';
+import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 @UseGuards(JwtAuthGuard)
 @Controller('tasks')
 export class TasksController {
@@ -14,28 +15,28 @@ export class TasksController {
     @Post()
     createTask(@Body() createTaskDto: CreateTaskDto, @Request() req): Promise<Task> {
         const { title, description, dueDate } = createTaskDto;
-        return this.tasksService.createTask(title, description, dueDate, req.user.sub);
+        return this.tasksService.createTask(title, description, dueDate, req.user.obj);
     }
 
 
     @Get(':id')
     getTask(@Param('id') id: string, @Request() req) {
-        return this.tasksService.getTask(id, req.user.sub);
+        return this.tasksService.getTask(id, req.user.obj);
     }
 
     @Get()
     getTasks(@Body() filters: FilterTaskDto, @Request() req) {
-        return this.tasksService.getTasks(req.user.sub, filters)
+        return this.tasksService.getTasks(req.user.obj, filters)
     }
 
     @Patch(':id')
     updateTask(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto, @Request() req) {
-        return this.tasksService.updateTask(id, updateTaskDto, req.user.sub);
+        return this.tasksService.updateTask(id, updateTaskDto, req.user.obj);
     }
 
     @Delete(':id')
     deleteTask(@Param('id') id: string, @Request() req) {
-        return this.tasksService.deleteTask(id, req.user.sub);
+        return this.tasksService.deleteTask(id, req.user.obj);
     }
 
 
