@@ -50,7 +50,7 @@ The repository **does not include** a `.env.example` file, so after cloning you 
 
 Example `.env` content based only on variables used in the code:
 
-````env
+```env
 HOST_DB='localhost'
 PORT_DB=5432
 USERNAME_DB=<POSTGRES_USERNAME>
@@ -65,6 +65,11 @@ Notes:
 - Set `JWT_SECRET` to your own long, random string.
 - Tables will be created or synchronized automatically on startup because TypeORM is configured with `synchronize: true`.
 
+
+
+
+```
+
 ## Running the App
 
 1. Make sure PostgreSQL is running and that the database specified in `DATABASE` already exists.
@@ -73,7 +78,7 @@ Notes:
 
 ```bash
 npm run start:dev
-````
+```
 
 After a successful startup, the API should be available at:
 
@@ -94,3 +99,7 @@ Main endpoints:
 - `DELETE /tasks/:id` — delete a task, requires a Bearer token
 
 The typical flow is: register a user, log in to receive an `access_token`, and then send the `Authorization: Bearer <token>` header with requests to `/tasks`.
+
+```
+
+```
