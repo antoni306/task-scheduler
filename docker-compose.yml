@@ -1,0 +1,57 @@
+name: task-scheduler-backend
+services:
+  postgres:
+    image: postgres:17
+    container_name: postgres_taskscheduler
+    environment:
+      POSTGRES_USER: ${USERNAME_DB}
+      POSTGRES_PASSWORD: ${PASSWORD_DB}
+      POSTGRES_DB: ${DATABASE}
+    ports:
+      - "${PORT_DB}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${USERNAME_DB} -d ${DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongodb:
+    image: mongo:7
+    container_name: mongodb_taskscheduler
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./
+    container_name: taskscheduler_backend
+    env_file: .env
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    environment:
+      HOST_DB: postgres
+      PORT_DB: 5432
+      USERNAME_DB: ${USERNAME_DB}  
+      PASSWORD_DB: ${PASSWORD_DB}  
+      DATABASE: ${DATABASE} 
+      JWT_SECRET: ${JWT_SECRET}
+      MONGO_URI: ${MONGO_URI}
+
+  
+
+volumes:
+  postgres_data:
+  mongodb_data:
