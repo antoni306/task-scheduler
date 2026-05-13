@@ -9,7 +9,7 @@ import { GoalsModule } from './goals/goals.module';
 @Module({
   imports: [
     GoalsModule,
-    MongooseModule.forRoot('mongodb://mongodb:27017/goaltracker'),
+    MongooseModule.forRoot(process.env.MONGO_URI||'mongodb://mongodb:27017/goaltracker'),
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     TasksModule,
@@ -22,7 +22,7 @@ import { GoalsModule } from './goals/goals.module';
       password: process.env.PASSWORD_DB,
       database: process.env.DATABASE,
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: false,
     }),
   ],
 })
