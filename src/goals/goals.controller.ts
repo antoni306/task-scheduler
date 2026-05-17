@@ -1,25 +1,81 @@
-import { Body, Controller, Post,Get, Param, Delete } from '@nestjs/common';
-import { GoalsService } from './goals.service';
-import { Goal } from './schemas/Goal.schema';
-import { ObjectId } from 'typeorm';
-@Controller('goals')
+import { Body, Controller, Post, Get, Param, Delete, Patch, Query } from "@nestjs/common";
+import { GoalsService } from "./goals.service";
+
+@Controller("goals")
 export class GoalsController {
-    constructor(private GoalsService:GoalsService){}
+    constructor(private goalsService: GoalsService) {}
+
+    // Goal library
     @Post()
-    create(@Body() goalDto:any): Promise<Goal & {_id: string;}> {
-        return this.GoalsService.create(goalDto);
-    }
-    @Get(":userId")
-    getAll(@Param("userId") id:string ): Promise<(Goal & {_id: string})[]>{
-        return this.GoalsService.findAll(id);
-    }
-    @Delete(":id")
-    deleteGoal(@Param("id") id){
-        return this.GoalsService.deleteGoal(id);
+    createGoal(@Body() dto: any) {
+        return this.goalsService.createGoal(dto);
     }
 
-    @Delete(":userId/all")
-    deleteAll(@Param("userId") userId:string){
-        return this.GoalsService.deleteAll(userId);
+    @Get("user/:userId")
+    getGoals(@Param("userId") userId: string) {
+        return this.goalsService.getGoals(userId);
+    }
+
+    @Delete(":id")
+    deleteGoal(@Param("id") id: string) {
+        return this.goalsService.deleteGoal(id);
+    }
+
+    // Plan template
+    @Get("plan/:userId")
+    getPlanTemplate(@Param("userId") userId: string) {
+        return this.goalsService.getPlanTemplate(userId);
+    }
+
+    @Patch("plan/:userId")
+    updatePlanTemplate(
+        @Param("userId") userId: string,
+        @Body() body: { days: { dayOfWeek: number; goalIds: string[] }[] },
+    ) {
+        return this.goalsService.updatePlanTemplate(userId, body.days);
+    }
+
+    // Current week record
+    @Get("week/current/:userId")
+    getCurrentWeek(@Param("userId") userId: string) {
+        return this.goalsService.getCurrentWeek(userId);
+    }
+
+    @Patch("week/current/:userId/day/:day/entry/:goalId/toggle")
+    toggleEntry(
+        @Param("userId") userId: string,
+        @Param("day") day: string,
+        @Param("goalId") goalId: string,
+    ) {
+        return this.goalsService.toggleEntry(userId, parseInt(day), goalId);
+    }
+
+    @Patch("week/current/:userId/day/:day/entry/:goalId/note")
+    updateNote(
+        @Param("userId") userId: string,
+        @Param("day") day: string,
+        @Param("goalId") goalId: string,
+        @Body() body: { note: string },
+    ) {
+        return this.goalsService.updateNote(userId, parseInt(day), goalId, body.note);
+    }
+
+    // Category rename
+    @Patch("category/:userId")
+    renameCategory(
+        @Param("userId") userId: string,
+        @Body() body: { oldCategory: string; newCategory: string },
+    ) {
+        return this.goalsService.renameCategory(userId, body.oldCategory, body.newCategory);
+    }
+
+    // Statistics
+    @Get("stats/:userId")
+    getStats(
+        @Param("userId") userId: string,
+        @Query("from") from?: string,
+        @Query("to") to?: string,
+    ) {
+        return this.goalsService.getStats(userId, from, to);
     }
 }

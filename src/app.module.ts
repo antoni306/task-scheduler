@@ -16,10 +16,13 @@ import { GoalsModule } from './goals/goals.module';
     UsersModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL,
+      host: process.env.HOST_DB || 'localhost',
+      port: parseInt(process.env.PORT_DB || '5432'),
+      username: process.env.USERNAME_DB,
+      password: process.env.PASSWORD_DB,
+      database: process.env.DATABASE,
       autoLoadEntities: true,
       synchronize: true,
-      ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
     }),
   ],
 })
